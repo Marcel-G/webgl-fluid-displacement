@@ -1,44 +1,48 @@
 import 'dom4'
-import domready from 'domready'
 import frag from './shaders/main.frag'
 import vert from './shaders/main.vert'
 import image from './midday.jpg'
-import twgl from 'twgl-base.js'
+import {
+  getWebGLContext,
+  createProgramInfo,
+  createBufferInfoFromArrays,
+  createTexture,
+  resizeCanvasToDisplaySize,
+  setBuffersAndAttributes,
+  setUniforms,
+  drawBufferInfo } from 'twgl-base.js'
 
-var gl, programInfo, bufferInfo, texture
-
-var arrays = {
+const arrays = {
   position: {numComponents: 2, data: [1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1]}
 }
 
-function render (time) {
-  if (document.hasFocus()) {
-    twgl.resizeCanvasToDisplaySize(gl.canvas)
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-
-    var uniforms = {
-      time: time * 0.001,
-      u_mySampler: texture,
-      resolution: [gl.canvas.width, gl.canvas.height]
-    }
-
-    gl.useProgram(programInfo.program)
-    twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo)
-    twgl.setUniforms(programInfo, uniforms)
-    twgl.drawBufferInfo(gl, bufferInfo)
+class AnimatedBackground {
+  constructor () {
+    let canvas = document.createElement('canvas')
+    document.body.appendChild(canvas)
+    this.gl = getWebGLContext(canvas)
+    this.programInfo = createProgramInfo(this.gl, [vert, frag])
+    this.bufferInfo = createBufferInfoFromArrays(this.gl, arrays)
+    this.texture = createTexture(this.gl, {src: image}, () => {
+      this.render()
+    })
   }
-  requestAnimationFrame(render)
+  render = time => {
+    let uniforms = {
+      time: time * 0.001,
+      u_mySampler: this.texture,
+      resolution: [this.gl.canvas.width, this.gl.canvas.height]
+    }
+    if (document.hasFocus()) {
+      resizeCanvasToDisplaySize(this.gl.canvas)
+      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
+      this.gl.useProgram(this.programInfo.program)
+      setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo)
+      setUniforms(this.programInfo, uniforms)
+      drawBufferInfo(this.gl, this.bufferInfo)
+    }
+    requestAnimationFrame(this.render)
+  }
 }
 
-domready(() => {
-  console.log('ready')
-  let canvas = document.createElement('canvas')
-  canvas.id = 'c'
-  document.body.appendChild(canvas)
-  gl = twgl.getWebGLContext(document.getElementById('c'))
-  programInfo = twgl.createProgramInfo(gl, [vert, frag])
-  bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays)
-  texture = twgl.createTexture(gl, {src: image}, () => {
-    requestAnimationFrame(render)
-  })
-})
+new AnimatedBackground()
