@@ -8,7 +8,9 @@
     "lint:js": "eslint .",
     "lint:js:fix": "npm run lint:js -- --fix",
     "lint:css": "stylelint '**/*.css'",
-    "start": "http-server bundle -o"
+    "start": "http-server bundle -o",
+    "predeploy": "npm run build",
+    "deploy": "git subtree push --prefix bundle origin gh-pages"
   },
   "dependencies": {
     "babel-runtime": "^6.18.0",
