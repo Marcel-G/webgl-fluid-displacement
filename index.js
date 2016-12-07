@@ -20,12 +20,17 @@ class AnimatedBackground {
   constructor () {
     let canvas = document.createElement('canvas')
     document.body.appendChild(canvas)
+    document.onmousemove = this.updateMouse
     this.gl = getWebGLContext(canvas)
     this.programInfo = createProgramInfo(this.gl, [vert, frag])
     this.bufferInfo = createBufferInfoFromArrays(this.gl, arrays)
     this.texture = createTexture(this.gl, {src: image}, () => {
       this.render()
     })
+  }
+  updateMouse = event => {
+    this.yPos = 2 * ((event.pageY / this.gl.canvas.height) - 0.5)
+    this.xPos = 2 * ((event.pageX / this.gl.canvas.width) - 0.5)
   }
   render = time => {
     let uniforms = {
