@@ -30,6 +30,9 @@ class AnimatedBackground {
   render = time => {
     let uniforms = {
       time: time * 0.001,
+      Frequency: 1,
+      Amplitude: 0.1,
+      Period: 0.03,
       u_mySampler: this.texture,
       resolution: [this.gl.canvas.width, this.gl.canvas.height]
     }

@@ -1,8 +1,11 @@
-precision mediump float;
+precision lowp float;
 uniform vec2 resolution;
 uniform sampler2D u_mySampler;
 uniform float time;
 varying vec2 v_position;
+uniform float Amplitude;
+uniform float Frequency;
+uniform float Period;
 // http://www.nutty.ca/?page_id=352&link=refraction
 // Description : Array and textureless GLSL 3D simplex noise function.
 //      Author : Ian McEwan, Ashima Arts.
@@ -102,8 +105,8 @@ float snoise(vec3 v)
 vec3 GetNormal ()
 {
 	// Get Sobel values
-	vec2 uv = v_position * 1.12;
-	float z = 1.123 * 1.12;
+	vec2 uv = v_position * Frequency;
+	float z = time * Period;
   vec2 TexelSize = vec2(800, 600);
 	float tl = snoise(vec3(uv.x - TexelSize.x, uv.y - TexelSize.y, z));
 	float t = snoise(vec3(uv.x, uv.y - TexelSize.y, z));
@@ -117,7 +120,7 @@ vec3 GetNormal ()
 	// Sobel filter
 	vec3 normal = vec3((-tl - l * 2.0 - bl) + (tr + r * 2.0 + br),
 				(-tl - t * 2.0 - tr) + (bl + b * 2.0 + br),
-				1.0 / 1.12);
+				1.0 / Amplitude);
 
 	// Return normalized vector
 	return normalize(normal);
@@ -126,5 +129,5 @@ void main() {
   vec2 uv = v_position.xy * vec2(1, -0.5) + vec2(0.5, 0.5);
   vec3 normal = GetNormal();
   vec2 offset = normal.xy;
-  gl_FragColor = texture2D(u_mySampler, v_position + offset);
+  gl_FragColor = texture2D(u_mySampler, uv + offset);
 }
