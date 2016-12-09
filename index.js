@@ -29,7 +29,7 @@ class AnimatedBackground {
     this.noiseProgramInfo = createProgramInfo(this.gl, [vert, noise])
     this.bufferInfo = createBufferInfoFromArrays(this.gl, arrays)
     this.framebufferInfo = createFramebufferInfo(this.gl)
-    this.texture = createTexture(this.gl, {src: image}, () => {
+    this.texture = createTexture(this.gl, {src: image, wrap: this.gl.CLAMP_TO_EDGE}, () => {
       this.render()
     })
   }
