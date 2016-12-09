@@ -39,8 +39,8 @@ class AnimatedBackground {
   }
   render = time => {
     let noiseUniforms = {
-      time: time * 0.001,
-      Period: 0.03,
+      time,
+      Period: 0.0001,
       resolution: [this.gl.canvas.width, this.gl.canvas.height]
     }
     let uniforms = {
