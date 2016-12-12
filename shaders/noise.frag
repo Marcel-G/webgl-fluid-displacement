@@ -96,7 +96,7 @@ float snoise(vec3 v)
 void main() {
   float z = time * Period;
   vec2 uv = v_position * 1.5;
-  float value = (1.0 - snoise(vec3(uv, z))) * 0.5;
+  float value = (snoise(vec3(uv, z)) + 1.0) * 0.5;
   vec4 greyscale = vec4(value, value, value, 1.0);
   gl_FragColor = greyscale;
 }
