@@ -23,7 +23,9 @@ class AnimatedBackground {
   constructor () {
     let canvas = document.createElement('canvas')
     document.body.appendChild(canvas)
-    document.onmousemove = this.updateMouse
+    this.yPos = this.xPos = this.yDelta = this.xDelta = 0
+    canvas.addEventListener('mousemove', this.updateMouse)
+    canvas.addEventListener('touchmove', this.updateMouse)
     this.gl = getWebGLContext(canvas)
     this.programInfo = createProgramInfo(this.gl, [vert, frag])
     this.noiseProgramInfo = createProgramInfo(this.gl, [vert, noise])
@@ -34,10 +36,23 @@ class AnimatedBackground {
     })
   }
   updateMouse = event => {
-    this.yPos = event.pageY / this.gl.canvas.height
-    this.xPos = event.pageX / this.gl.canvas.width
+    if (event.touches && event.touches.length > 1) {
+      return
+    }
+    let touches = event.touches
+    if (!touches) {
+      touches = [{ clientX: event.clientX, clientY: event.clientY }]
+    }
+    let yPos = touches[0].clientY / this.gl.canvas.height
+    let xPos = touches[0].clientX / this.gl.canvas.width
+    this.yDelta += Math.round(Math.abs(100 * (this.yPos - yPos)))
+    this.xDelta += Math.round(Math.abs(100 * (this.xPos - xPos)))
+    this.yPos = yPos
+    this.xPos = xPos
   }
   render = time => {
+    if (this.yDelta > 0) this.yDelta -= 1
+    if (this.xDelta > 0) this.xDelta -= 1
     let noiseUniforms = {
       time,
       Period: 0.0001,
