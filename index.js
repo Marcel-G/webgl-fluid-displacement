@@ -23,7 +23,9 @@ class AnimatedBackground {
   constructor () {
     let canvas = document.createElement('canvas')
     document.body.appendChild(canvas)
-    this.yPos = this.xPos = this.yDelta = this.xDelta = 0
+    this.pos = [0, 0]
+    this.delta = 0
+    this.subsideScale = 500
     canvas.addEventListener('mousemove', this.updateMouse)
     canvas.addEventListener('touchmove', this.updateMouse)
     this.gl = getWebGLContext(canvas)
@@ -43,24 +45,23 @@ class AnimatedBackground {
     if (!touches) {
       touches = [{ clientX: event.clientX, clientY: event.clientY }]
     }
-    let yPos = touches[0].clientY / this.gl.canvas.height
-    let xPos = touches[0].clientX / this.gl.canvas.width
-    this.yDelta += Math.round(Math.abs(100 * (this.yPos - yPos)))
-    this.xDelta += Math.round(Math.abs(100 * (this.xPos - xPos)))
-    this.yPos = yPos
-    this.xPos = xPos
+    let pos = [touches[0].clientY / this.gl.canvas.height, touches[0].clientX / this.gl.canvas.width]
+    let delta = this.delta + Math.round(this.subsideScale * (Math.abs(this.pos[0] - pos[0]) + Math.abs(this.pos[1] - pos[1])))
+    if (delta > this.subsideScale) delta = this.delta
+    this.delta = delta
+    this.pos = pos
   }
   render = time => {
-    if (this.yDelta > 0) this.yDelta -= 1
-    if (this.xDelta > 0) this.xDelta -= 1
+    if (this.delta > 0) this.delta -= 1
     let noiseUniforms = {
       time,
       Period: 0.0001,
       resolution: [this.gl.canvas.width, this.gl.canvas.height]
     }
     let uniforms = {
-      Frequency: this.yPos,
-      Amplitude: this.xPos,
+      Frequency: 1,
+      Amplitude: 1,
+      Intensity: this.delta / this.subsideScale,
       u_texSampler: this.texture,
       u_noiseSampler: this.framebufferInfo.attachments[0],
       resolution: [this.gl.canvas.width, this.gl.canvas.height]
