@@ -42,7 +42,7 @@ vec3 GetNormal () {
 
 void main() {
   vec3 normal = GetNormal();
-  vec2 offset = normal.xy * Intensity;
+  vec2 offset = (normal.xy + vec2(0, 0.5)) * Intensity;
   vec2 uv = v_position * vec2(1.0, -0.5) + vec2(0, 0.5);
   // gl_FragColor.xyz = normal;
   // gl_FragColor.xyz = texture2D(u_noiseSampler, v_texcoord).xyz;
