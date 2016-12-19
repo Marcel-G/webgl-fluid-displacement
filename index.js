@@ -67,21 +67,19 @@ class AnimatedBackground {
       u_noiseSampler: this.framebufferInfo.attachments[0],
       resolution: [this.gl.canvas.width, this.gl.canvas.height]
     }
-    if (document.hasFocus()) {
-      resizeCanvasToDisplaySize(this.gl.canvas)
-      bindFramebufferInfo(this.gl, this.framebufferInfo)
+    resizeCanvasToDisplaySize(this.gl.canvas)
+    bindFramebufferInfo(this.gl, this.framebufferInfo)
 
-      this.gl.useProgram(this.noiseProgramInfo.program)
-      setBuffersAndAttributes(this.gl, this.noiseProgramInfo, this.bufferInfo)
-      setUniforms(this.noiseProgramInfo, noiseUniforms)
-      drawBufferInfo(this.gl, this.bufferInfo)
+    this.gl.useProgram(this.noiseProgramInfo.program)
+    setBuffersAndAttributes(this.gl, this.noiseProgramInfo, this.bufferInfo)
+    setUniforms(this.noiseProgramInfo, noiseUniforms)
+    drawBufferInfo(this.gl, this.bufferInfo)
 
-      bindFramebufferInfo(this.gl, null)
-      this.gl.useProgram(this.programInfo.program)
-      setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo)
-      setUniforms(this.programInfo, uniforms)
-      drawBufferInfo(this.gl, this.bufferInfo)
-    }
+    bindFramebufferInfo(this.gl, null)
+    this.gl.useProgram(this.programInfo.program)
+    setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo)
+    setUniforms(this.programInfo, uniforms)
+    drawBufferInfo(this.gl, this.bufferInfo)
     requestAnimationFrame(this.render)
   }
 }
