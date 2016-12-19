@@ -3,7 +3,7 @@ uniform vec2 resolution;
 uniform sampler2D u_mySampler;
 uniform float time;
 uniform float Period;
-
+uniform vec2 Parralax;
 varying vec2 v_position;
 
 // http://www.nutty.ca/?page_id=352&link=refraction
@@ -95,7 +95,7 @@ float snoise(vec3 v)
 
 void main() {
   float z = time * Period;
-  vec2 uv = v_position * 1.5;
+  vec2 uv = (v_position + Parralax) * 1.5;
   float value = (snoise(vec3(uv, z)) + 1.0) * 0.5;
   vec4 greyscale = vec4(value, value, value, 1.0);
   gl_FragColor = greyscale;

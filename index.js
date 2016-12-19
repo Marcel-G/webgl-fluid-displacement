@@ -56,11 +56,12 @@ class AnimatedBackground {
     let noiseUniforms = {
       time,
       Period: 0.0001,
+      Parralax: [(this.pos[1] - 0.5) / 5, (this.pos[0] - 0.5) / 5],
       resolution: [this.gl.canvas.width, this.gl.canvas.height]
     }
     let uniforms = {
       Frequency: 1,
-      Amplitude: 1,
+      Amplitude: 0.5,
       Intensity: this.delta / this.subsideScale,
       u_texSampler: this.texture,
       u_noiseSampler: this.framebufferInfo.attachments[0],

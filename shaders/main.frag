@@ -22,7 +22,7 @@ vec3 GetNormal () {
 
   float texelX[9];
   float texelY[9];
-  vec2 uv = v_texcoord * Frequency;
+  vec2 uv = (v_texcoord) * Frequency;
   for (int i = 0; i < 9; i++)
   {
       vec4 otherTexel = texture2D(u_noiseSampler, uv);
@@ -42,10 +42,8 @@ vec3 GetNormal () {
 
 void main() {
   vec3 normal = GetNormal();
-  vec2 offset = (normal.xy + vec2(0, 0.5)) * Intensity;
+  vec2 offset = (normal.xy + vec2(0, 0.25)) * Intensity;
   vec2 uv = v_position * vec2(1.0, -0.5) + vec2(0, 0.5);
-  // gl_FragColor.xyz = normal;
-  // gl_FragColor.xyz = texture2D(u_noiseSampler, v_texcoord).xyz;
   gl_FragColor.xyz = texture2D(u_texSampler, uv + offset).xyz;
   gl_FragColor.w = 1.0;
 }
