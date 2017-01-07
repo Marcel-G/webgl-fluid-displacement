@@ -24,7 +24,8 @@ class AnimatedBackground {
     let canvas = document.createElement('canvas')
     document.body.appendChild(canvas)
     this.pos = [0, 0]
-    this.delta = 0
+    this.intensity = 0
+    this.intensityD = 0
     this.subsideScale = 500
     canvas.addEventListener('mousemove', this.updateMouse)
     canvas.addEventListener('touchmove', this.updateMouse)
@@ -46,40 +47,42 @@ class AnimatedBackground {
       touches = [{ clientX: event.clientX, clientY: event.clientY }]
     }
     let pos = [touches[0].clientY / this.gl.canvas.height, touches[0].clientX / this.gl.canvas.width]
-    let delta = this.delta + Math.round(this.subsideScale * (Math.abs(this.pos[0] - pos[0]) + Math.abs(this.pos[1] - pos[1])))
-    if (delta > this.subsideScale) delta = this.delta
-    this.delta = delta
+    let intensity = Math.abs(pos[0] - 0.5)
+    this.intensity = intensity
     this.pos = pos
   }
   render = time => {
-    if (this.delta > 0) this.delta -= 1
-    let noiseUniforms = {
-      time,
-      Period: 0.0001,
-      Parralax: [(this.pos[1] - 0.5) / 5, (this.pos[0] - 0.5) / 5],
-      resolution: [this.gl.canvas.width, this.gl.canvas.height]
-    }
-    let uniforms = {
-      Frequency: 1,
-      Amplitude: 0.5,
-      Intensity: this.delta / this.subsideScale,
-      u_texSampler: this.texture,
-      u_noiseSampler: this.framebufferInfo.attachments[0],
-      resolution: [this.gl.canvas.width, this.gl.canvas.height]
-    }
-    resizeCanvasToDisplaySize(this.gl.canvas)
-    bindFramebufferInfo(this.gl, this.framebufferInfo)
+    if (document.hasFocus()) {
+      if (this.intensityD !== this.intensity) this.intensityD += (this.intensityD > this.intensity ? -1 : 1) / 300
+      if (this.delta > 0) this.delta -= 1
+      let noiseUniforms = {
+        time,
+        Period: 0.0002,
+        Parralax: [(this.pos[1] - 0.5) / 5, (this.pos[0] - 0.5) / 5],
+        resolution: [this.gl.canvas.width, this.gl.canvas.height]
+      }
+      let uniforms = {
+        Frequency: 0.7,
+        Amplitude: 0.5,
+        Intensity: this.intensityD * 2,
+        u_texSampler: this.texture,
+        u_noiseSampler: this.framebufferInfo.attachments[0],
+        resolution: [this.gl.canvas.width, this.gl.canvas.height]
+      }
+      resizeCanvasToDisplaySize(this.gl.canvas)
+      bindFramebufferInfo(this.gl, this.framebufferInfo)
 
-    this.gl.useProgram(this.noiseProgramInfo.program)
-    setBuffersAndAttributes(this.gl, this.noiseProgramInfo, this.bufferInfo)
-    setUniforms(this.noiseProgramInfo, noiseUniforms)
-    drawBufferInfo(this.gl, this.bufferInfo)
+      this.gl.useProgram(this.noiseProgramInfo.program)
+      setBuffersAndAttributes(this.gl, this.noiseProgramInfo, this.bufferInfo)
+      setUniforms(this.noiseProgramInfo, noiseUniforms)
+      drawBufferInfo(this.gl, this.bufferInfo)
 
-    bindFramebufferInfo(this.gl, null)
-    this.gl.useProgram(this.programInfo.program)
-    setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo)
-    setUniforms(this.programInfo, uniforms)
-    drawBufferInfo(this.gl, this.bufferInfo)
+      bindFramebufferInfo(this.gl, null)
+      this.gl.useProgram(this.programInfo.program)
+      setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo)
+      setUniforms(this.programInfo, uniforms)
+      drawBufferInfo(this.gl, this.bufferInfo)
+    }
     requestAnimationFrame(this.render)
   }
 }
