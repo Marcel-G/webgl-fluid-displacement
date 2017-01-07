@@ -24,6 +24,7 @@ class AnimatedBackground {
     let canvas = document.createElement('canvas')
     document.body.appendChild(canvas)
     this.pos = [0, 0]
+    this.parralax = [0, 0]
     this.intensity = 0
     this.intensityD = 0
     this.subsideScale = 500
@@ -47,24 +48,27 @@ class AnimatedBackground {
       touches = [{ clientX: event.clientX, clientY: event.clientY }]
     }
     let pos = [touches[0].clientY / this.gl.canvas.height, touches[0].clientX / this.gl.canvas.width]
-    let intensity = Math.abs(pos[0] - 0.5)
+    let intensity = Math.abs(pos[0] - 0.5) * 2
+    if (intensity < 0.1) intensity = 0
     this.intensity = intensity
     this.pos = pos
   }
   render = time => {
-    if (document.hasFocus()) {
-      if (this.intensityD !== this.intensity) this.intensityD += (this.intensityD > this.intensity ? -1 : 1) / 300
+    if (true || document.hasFocus()) {
+      this.intensityD -= (this.intensityD - this.intensity) / 20
+      this.parralax[1] -= (this.parralax[1] - ((this.pos[1] - 0.5) / 5)) / 20
+      this.parralax[0] -= (this.parralax[0] - ((this.pos[0] - 0.5) / 5)) / 20
       if (this.delta > 0) this.delta -= 1
       let noiseUniforms = {
         time,
         Period: 0.0002,
-        Parralax: [(this.pos[1] - 0.5) / 5, (this.pos[0] - 0.5) / 5],
+        Parralax: [this.parralax[1], this.parralax[0]],
         resolution: [this.gl.canvas.width, this.gl.canvas.height]
       }
       let uniforms = {
         Frequency: 0.7,
         Amplitude: 0.5,
-        Intensity: this.intensityD * 2,
+        Intensity: this.intensityD,
         u_texSampler: this.texture,
         u_noiseSampler: this.framebufferInfo.attachments[0],
         resolution: [this.gl.canvas.width, this.gl.canvas.height]
