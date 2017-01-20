@@ -1,10 +1,5 @@
 const path = require('path')
 const webpack = require('webpack')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const atImport = require('postcss-import')
-const cssnext = require('postcss-cssnext')
-const reporter = require('postcss-reporter')
 
 module.exports = {
   entry: [
