@@ -8,12 +8,13 @@ const reporter = require('postcss-reporter')
 
 module.exports = {
   entry: [
-    './index.js',
-    './index.css'
+    './index.js'
   ],
   output: {
     path: path.resolve('./bundle'),
-    filename: 'bundle.js'
+    filename: 'webglImageDisplacement.js',
+    libraryTarget: 'var',
+    library: 'ImageDisplacement'
   },
   devtool: 'source-map',
   module: {
@@ -21,9 +22,6 @@ module.exports = {
       test: /\.js$/,
       exclude: /node_modules/,
       loader: 'babel?cacheDirectory'
-    }, {
-      test: /\.css$/,
-      loader: ExtractTextPlugin.extract('style', 'css?sourceMap&-autoprefixer&importLoaders=1!postcss')
     },
     {
       test: /\.(svg|png|jpg|webm|mp4|woff|woff2)$/,
@@ -32,23 +30,11 @@ module.exports = {
     { test: /\.(glsl|frag|vert)$/, loader: 'raw', exclude: /node_modules/ },
     { test: /\.(glsl|frag|vert)$/, loader: 'glslify', exclude: /node_modules/ }]
   },
-  postcss: function (webpack) {
-    return [
-      atImport({addDependencyTo: webpack}),
-      cssnext,
-      reporter({clearMessages: true})
-    ]
-  },
   plugins: [
-    new webpack.ProvidePlugin({
-      'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch'
-    }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
       }
-    }),
-    new ExtractTextPlugin('bundle.css'),
-    new HtmlWebpackPlugin()
+    })
   ]
 }

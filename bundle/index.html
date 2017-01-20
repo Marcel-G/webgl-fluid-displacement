@@ -2,8 +2,18 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Webpack App</title>
-  <link href="bundle.css" rel="stylesheet"></head>
-  <body>
-  <script type="text/javascript" src="bundle.js"></script></body>
+    <title>webgl Image Displacement Example</title>
+  <body style='margin: 0; padding: 0;'>
+    <div style='height: 100vh; width: 100vw' id='newThing'>
+    </div>
+  <script type="text/javascript" src="webglImageDisplacement.js">
+  </script>
+  <script type="text/javascript">
+  console.log('test')
+  ImageDisplacement({
+    element: document.getElementById('newThing'),
+    imageSrc: './assets/midday.jpg'
+  })
+  </script>
+</body>
 </html>

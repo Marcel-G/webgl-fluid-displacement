@@ -2,7 +2,7 @@ import 'dom4'
 import noise from './shaders/noise.frag'
 import frag from './shaders/main.frag'
 import vert from './shaders/main.vert'
-import image from './midday.jpg'
+
 import {
   bindFramebufferInfo,
   getWebGLContext,
@@ -15,29 +15,48 @@ import {
   setUniforms,
   drawBufferInfo } from 'twgl-base.js'
 
+const baseStyle = {display: 'block', backgroundColor: 'black', height: '100%', width: '100%'}
+
+const applyStyles = (element, styles) => {
+  Object.keys(styles).forEach(style => {
+    element.style[style] = styles[style]
+  })
+}
+
 const arrays = {
   position: {numComponents: 2, data: [1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1]}
 }
 
-class AnimatedBackground {
-  constructor () {
-    let canvas = document.createElement('canvas')
-    document.body.appendChild(canvas)
+class ImageDisplacement {
+  constructor (options) {
     this.pos = [0, 0]
     this.parralax = [0, 0]
-    this.intensity = 0
-    this.intensityD = 0
+    this.intensity = this.intensityD = 0
     this.subsideScale = 500
-    canvas.addEventListener('mousemove', this.updateMouse)
-    canvas.addEventListener('touchmove', this.updateMouse)
-    this.gl = getWebGLContext(canvas)
-    this.programInfo = createProgramInfo(this.gl, [vert, frag])
-    this.noiseProgramInfo = createProgramInfo(this.gl, [vert, noise])
-    this.bufferInfo = createBufferInfoFromArrays(this.gl, arrays)
-    this.framebufferInfo = createFramebufferInfo(this.gl)
-    this.texture = createTexture(this.gl, {src: image, wrap: this.gl.CLAMP_TO_EDGE}, () => {
-      this.render()
-    })
+    this.imageSrc = options.imageSrc
+    this.element = options.element || document.body
+    let canvas = document.createElement('canvas')
+    applyStyles(canvas, baseStyle)
+    try {
+      this.gl = getWebGLContext(canvas)
+    } catch (error) { this.gl = null }
+    if (this.gl !== null) {
+      this.element.appendChild(canvas)
+      canvas.addEventListener('mousemove', this.updateMouse)
+      canvas.addEventListener('touchmove', this.updateMouse)
+      this.programInfo = createProgramInfo(this.gl, [vert, frag])
+      this.noiseProgramInfo = createProgramInfo(this.gl, [vert, noise])
+      this.bufferInfo = createBufferInfoFromArrays(this.gl, arrays)
+      this.framebufferInfo = createFramebufferInfo(this.gl)
+      this.texture = createTexture(this.gl, {src: this.imageSrc, wrap: this.gl.CLAMP_TO_EDGE}, () => {
+        this.render()
+      })
+    } else {
+      let fallBackImage = document.createElement('img')
+      applyStyles(fallBackImage, baseStyle)
+      fallBackImage.src = this.imageSrc
+      this.element.appendChild(fallBackImage)
+    }
   }
   updateMouse = event => {
     if (event.touches && event.touches.length > 1) {
@@ -54,7 +73,7 @@ class AnimatedBackground {
     this.pos = pos
   }
   render = time => {
-    if (true || document.hasFocus()) {
+    if (document.hasFocus()) {
       this.intensityD -= (this.intensityD - this.intensity) / 20
       this.parralax[1] -= (this.parralax[1] - ((this.pos[1] - 0.5) / 5)) / 20
       this.parralax[0] -= (this.parralax[0] - ((this.pos[0] - 0.5) / 5)) / 20
@@ -91,4 +110,4 @@ class AnimatedBackground {
   }
 }
 
-new AnimatedBackground()
+module.exports = options => new ImageDisplacement(options)
