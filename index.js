@@ -1,4 +1,3 @@
-import 'dom4'
 import noise from './shaders/noise.frag'
 import frag from './shaders/main.frag'
 import vert from './shaders/main.vert'
@@ -27,6 +26,14 @@ const arrays = {
   position: {numComponents: 2, data: [1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1]}
 }
 
+const calculateRelativeCoords = (position, element) => {
+  const {top, left, width, height} = element.getBoundingClientRect()
+  const {clientX, clientY} = position
+  const elementX = Math.min(Math.max((clientX - left) / width, 0), 1)
+  const elementY = Math.min(Math.max((clientY - top) / height, 0), 1)
+  return {elementX, elementY}
+}
+
 class ImageDisplacement {
   constructor (options) {
     this.pos = [0, 0]
@@ -42,8 +49,8 @@ class ImageDisplacement {
     } catch (error) { this.gl = null }
     if (this.gl !== null) {
       this.element.appendChild(canvas)
-      canvas.addEventListener('mousemove', this.updateMouse)
-      canvas.addEventListener('touchmove', this.updateMouse)
+      window.addEventListener('mousemove', this.updateMouse)
+      window.addEventListener('touchmove', this.updateMouse)
       this.programInfo = createProgramInfo(this.gl, [vert, frag])
       this.noiseProgramInfo = createProgramInfo(this.gl, [vert, noise])
       this.bufferInfo = createBufferInfoFromArrays(this.gl, arrays)
@@ -66,14 +73,15 @@ class ImageDisplacement {
     if (!touches) {
       touches = [{ clientX: event.clientX, clientY: event.clientY }]
     }
-    let pos = [touches[0].clientY / this.gl.canvas.height, touches[0].clientX / this.gl.canvas.width]
+    let elementMousePos = calculateRelativeCoords(touches[0], this.element)
+    let pos = [elementMousePos.elementY, elementMousePos.elementX]
     let intensity = Math.abs(pos[0] - 0.5) * 2
     if (intensity < 0.1) intensity = 0
     this.intensity = intensity
     this.pos = pos
   }
   render = time => {
-    if (document.hasFocus()) {
+    if (true || document.hasFocus()) {
       this.intensityD -= (this.intensityD - this.intensity) / 20
       this.parralax[1] -= (this.parralax[1] - ((this.pos[1] - 0.5) / 5)) / 20
       this.parralax[0] -= (this.parralax[0] - ((this.pos[0] - 0.5) / 5)) / 20
